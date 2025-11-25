@@ -1,3 +1,4 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
 name: CI/CD Website Filminisme - PSO B - Kelompok 17
 
 on:
@@ -10,8 +11,8 @@ env:
   AZURE_WEBAPP_NAME_STAGING: ${{ secrets.AZURE_WEBAPP_NAME_STAGING }}
   AZURE_WEBAPP_NAME_PRODUCTION: ${{ secrets.AZURE_WEBAPP_NAME_PRODUCTION }}
   IMAGE_NAME: ${{ secrets.IMAGE_NAME }}
-  PRODUCTION_APP_URL: ${{secrets.PRODUCTION_APP_URL}}
-  STAGING_APP_URL: ${{secrets.STAGING_APP_URL}}
+  PRODUCTION_APP_URL: ${{ secrets.PRODUCTION_APP_URL }}
+  STAGING_APP_URL: ${{ secrets.STAGING_APP_URL }}
 
 jobs:
   lint_and_unit_test:
@@ -29,8 +30,6 @@ jobs:
         with:
           path: ~/.npm
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
       - name: Install dependensi
         run: npm ci
       - name: Jalankan Lint
@@ -50,11 +49,13 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20.x'
+
       - name: Cache dependensi
         uses: actions/cache@v4
         with:
           path: ~/.npm
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+
       - name: Install dependensi
         run: npm ci
 
@@ -64,16 +65,16 @@ jobs:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
 
-      # - name: Jalankan Cypress Tests
-      #   uses: cypress-io/github-action@v6
-      #   with:
-      #     start: npm start
-      #     wait-on: 'http://localhost:3000'
-      #   env:
-      #     NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-      #     NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
-      #     CYPRESS_userEmail: ${{ secrets.CYPRESS_USER_EMAIL }}
-      #     CYPRESS_userPassword: ${{ secrets.CYPRESS_USER_PASSWORD }}
+      - name: Jalankan Cypress Tests
+        uses: cypress-io/github-action@v6
+        with:
+          start: npm start
+          wait-on: 'http://localhost:3000'
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          CYPRESS_userEmail: ${{ secrets.CYPRESS_USER_EMAIL }}
+          CYPRESS_userPassword: ${{ secrets.CYPRESS_USER_PASSWORD }}
 
       - name: Upload Artefak Build
         uses: actions/upload-artifact@v4
@@ -129,7 +130,7 @@ jobs:
       - name: Deploy ke Azure Web App Staging
         uses: azure/webapps-deploy@v3
         with:
-          app-name: ${{env.AZURE_WEBAPP_NAME_PRODUCTION}}
+          app-name: ${{ env.AZURE_WEBAPP_NAME_STAGING }}
           publish-profile: ${{ secrets.AZURE_PUBLISH_PROFILE_STAGING }}
           images: '${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ github.sha }}'
           slot-name: staging
