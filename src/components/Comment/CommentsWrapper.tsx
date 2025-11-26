@@ -1,7 +1,7 @@
 'use client';
 
 import AddComment from './AddComment';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import Comments from './Comments';
 import { CommentType } from '@/types/Comment/CommentType';
 import { supabase } from '@/db/supabaseClient';
@@ -26,7 +26,8 @@ const CommentsWrapper = ({
     setIdComment(idComment);
   };
 
-  const fetchComments = async () => {
+
+  const fetchComments = useCallback(async () => {
     try {
       const { data } = await supabase
         .from('comments')
@@ -44,11 +45,11 @@ const CommentsWrapper = ({
     } catch (error) {
       console.error('Error fetching comments:', error);
     }
-  };
+  }, [movieId]);
 
   useEffect(() => {
     fetchComments();
-  }, [movieId]);
+  }, [fetchComments]);
 
   return (
     <>

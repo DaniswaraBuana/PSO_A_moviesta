@@ -20,41 +20,41 @@ const CommentsContent = async ({ movieId }: { movieId: string }) => {
 
 // ========== MOVIE DETAIL PAGE ==========
 const MovieDetail = async ({ params }: { params: { movieId: string } }) => {
-  const movieId = params.movieId; // ❗Tidak perlu await
+  const movieId = params.movieId;
 
   const { data: movie, error } = await supabase
     .from('movies')
-    .select(
-      `
+    .select(`
       id,
+      created_at,
       title,
       year,
       rating,
       poster_url,
       description,
       director,
-      mov_genre (
-        genre_id,
-        genre(name)
-      ),
-      mov_actor (
-        actor_id,
-        actor(name)
-      )
-      `
-    )
+      genre,
+      actors_id,
+      genres_id
+    `)
     .eq('id', movieId)
-    .single(); // ❗Supaya dapat 1 object, bukan array
+    .single();
 
   if (error) {
     console.error(error);
     throw error;
   }
 
+  // Ensure genre is an array (if not, fallback to empty array)
+  const movieData = {
+    ...movie,
+    genre: Array.isArray(movie.genre) ? movie.genre : (movie.genre ? [movie.genre] : []),
+  };
+
   return (
     <AppShell>
       <Suspense fallback={<Loading />}>
-        <MovieDetailPage movie={movie} />
+        <MovieDetailPage movie={movieData} />
       </Suspense>
 
       <section className="mt-10">
@@ -64,19 +64,6 @@ const MovieDetail = async ({ params }: { params: { movieId: string } }) => {
           <CommentsContent movieId={movieId} />
         </Suspense>
       </section>
-    </AppShell>
-  );
-};
-
-export default MovieDetail;
-
-
-  return (
-    <AppShell>
-      <MovieDetailPage movie={movie[0]} />
-      <Suspense fallback={Loading()}>
-        <CommentsContent movieId={movieId} />
-      </Suspense>
     </AppShell>
   );
 };
