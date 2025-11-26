@@ -1,5 +1,5 @@
-# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
-name: CI/CD Website Filminisme - PSO B - Kelompok 17
+
+name: CI/CD Website 
 
 on:
   push:
