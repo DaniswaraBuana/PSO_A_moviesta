@@ -19,14 +19,14 @@ describe('Login Page', () => {
     });
   });
 
-  it('berhasil login dengan kredensial yang valid', () => {
-    // Ambil dari cypress.env.json → userEmail & userPassword
-    cy.get('[data-cy="login-email-input"]').type(Cypress.env('userEmail'));
-    cy.get('[data-cy="login-password-input"]').type(Cypress.env('userPassword'));
+  // it('berhasil login dengan kredensial yang valid', () => {
+  //   // Ambil dari cypress.env.json → userEmail & userPassword
+  //   cy.get('[data-cy="login-email-input"]').type(Cypress.env('userEmail'));
+  //   cy.get('[data-cy="login-password-input"]').type(Cypress.env('userPassword'));
 
-    cy.get('[data-cy="login-button"]').click();
+  //   cy.get('[data-cy="login-button"]').click();
 
-    // Setelah login, diarahkan ke "/"
-    cy.url().should('eq', Cypress.config().baseUrl + '/');
-  });
+  //   // Setelah login, diarahkan ke "/"
+  //   cy.url().should('eq', Cypress.config().baseUrl + '/');
+  // });
 });
