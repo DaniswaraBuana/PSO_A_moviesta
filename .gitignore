@@ -10,7 +10,7 @@
 /coverage
 
 # cypress.env.json
-cypress/e2e/search.cy.ts
+# cypress/e2e/search.cy.ts
 
 # next.js
 /.next/
