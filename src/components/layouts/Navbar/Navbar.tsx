@@ -87,7 +87,7 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
   },
 }));
 
-export default function SearchAppBar() {
+const Navbar = () => {
   const { setSelectedGenres } = useFilterContext();
   const searchRef = useRef<HTMLInputElement | null>(null);
   const router = useRouter();
@@ -146,4 +146,6 @@ export default function SearchAppBar() {
       </AppBar>
     </Box>
   );
-}
+};
+
+export default Navbar;
