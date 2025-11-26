@@ -9,16 +9,19 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import { login } from '../actions'; // sesuaikan path actions kamu
+import { useRouter } from 'next/navigation';
+import { login } from '../actions';
 
 export default function LoginPage() {
+  const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showError, setShowError] = useState('');
 
   const handleLogin = async () => {
     if (!email || !password) {
-      alert('Semua field wajib diisi.');
+      // SESUAI CYPRESS
+      alert('Email dan password wajib diisi.');
       return;
     }
 
@@ -27,8 +30,7 @@ export default function LoginPage() {
       setShowError(error);
     } else {
       setShowError('');
-      // redirect kalau sukses, misalnya:
-      // router.push('/dashboard');
+      router.push('/'); // SESUAI CYPRESS (redirect ke "/")
     }
   };
 
@@ -43,15 +45,12 @@ export default function LoginPage() {
           fullWidth
           label="Email"
           margin="normal"
+          data-cy="login-email-input"     // WAJIB UNTUK CYPRESS
           onChange={(e) => setEmail(e.target.value)}
           InputLabelProps={{ shrink: true }}
           sx={{
-            '& label': {
-              color: 'primary.main',
-            },
-            '& label.Mui-focused': {
-              color: 'primary.main',
-            },
+            '& label': { color: 'primary.main' },
+            '& label.Mui-focused': { color: 'primary.main' },
           }}
         />
 
@@ -60,15 +59,12 @@ export default function LoginPage() {
           label="Password"
           type="password"
           margin="normal"
+          data-cy="login-password-input"  // WAJIB UNTUK CYPRESS
           onChange={(e) => setPassword(e.target.value)}
           InputLabelProps={{ shrink: true }}
           sx={{
-            '& label': {
-              color: 'primary.main',
-            },
-            '& label.Mui-focused': {
-              color: 'primary.main',
-            },
+            '& label': { color: 'primary.main' },
+            '& label.Mui-focused': { color: 'primary.main' },
           }}
         />
 
@@ -78,6 +74,7 @@ export default function LoginPage() {
           color="primary"
           sx={{ mt: 2 }}
           onClick={handleLogin}
+          data-cy="login-button"          // WAJIB UNTUK CYPRESS
         >
           Login
         </Button>
