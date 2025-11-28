@@ -2,11 +2,32 @@ import { MovieType } from '@/types/Movie/MovieType';
 import { render, screen } from '@testing-library/react';
 import MovieList from '../MovieList';
 
+// Mock next/navigation
+jest.mock('next/navigation', () => ({
+	usePathname: () => '/',
+}));
+
+// Mock next/image
+jest.mock('next/image', () => ({
+	__esModule: true,
+	default: ({ src, alt }: { src: string; alt: string }) => (
+		<img src={src} alt={alt} />
+	),
+}));
+
 // Mock WatchlistButton agar tidak error saat membuat Supabase client
 jest.mock('@/components/Buttons/WatchlistButton/WatchlistButton', () => ({
 	__esModule: true,
 	default: ({ movieId }: { movieId: string }) => (
 		<button data-testid={`watchlist-${movieId}`}>Watchlist</button>
+	),
+}));
+
+// Mock WatchedButton
+jest.mock('@/components/Buttons/WatchlistButton/WatchedButton/WatchedButton', () => ({
+	__esModule: true,
+	default: ({ movieId }: { movieId: string }) => (
+		<button data-testid={`watched-${movieId}`}>Watched</button>
 	),
 }));
 
