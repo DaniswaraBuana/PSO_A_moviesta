@@ -123,8 +123,8 @@ jobs:
           file: Dockerfile
           push: true
           tags: |
-            ghcr.io/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
-            ghcr.io/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:latest
+            ghcr.io/daniswarabuana/${{ env.IMAGE_NAME }}:${{ github.sha }}
+            ghcr.io/daniswarabuana/${{ env.IMAGE_NAME }}:latest
 
 
   deploy_staging:
@@ -141,7 +141,7 @@ jobs:
         with:
           app-name: ${{ env.AZURE_WEBAPP_NAME_STAGING }}
           publish-profile: ${{ secrets.AZURE_PUBLISH_PROFILE_STAGING }}
-          images: ghcr.io/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+          images: ghcr.io/daniswarabuana/${{ env.IMAGE_NAME }}:${{ github.sha }}
           slot-name: staging
 
       - name: Smoke Test Staging
@@ -165,4 +165,4 @@ jobs:
         with:
           app-name: ${{ env.AZURE_WEBAPP_NAME_PRODUCTION }}
           publish-profile: ${{ secrets.AZURE_PUBLISH_PROFILE_PRODUCTION }}
-          images: ghcr.io/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+          images: ghcr.io/daniswarabuana/${{ env.IMAGE_NAME }}:${{ github.sha }}
