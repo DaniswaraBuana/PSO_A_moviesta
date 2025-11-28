@@ -2,48 +2,42 @@ name: CI/CD Website
 
 on:
   push:
-    branches: ['main']
+    branches: ["main"]
   pull_request:
-    branches: ['main']
+    branches: ["main"]
 
 permissions:
   contents: read
   packages: write
 
 env:
-  AZURE_WEBAPP_NAME_STAGING: ${{ secrets.AZURE_WEBAPP_NAME_STAGING }}
-  AZURE_WEBAPP_NAME_PRODUCTION: ${{ secrets.AZURE_WEBAPP_NAME_PRODUCTION }}
   IMAGE_NAME: pso-a-moviesta
-  PRODUCTION_APP_URL: ${{ secrets.PRODUCTION_APP_URL }}
-  STAGING_APP_URL: ${{ secrets.STAGING_APP_URL }}
+  REGISTRY_OWNER: daniswarabuana
+  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
 
 jobs:
   lint_and_unit_test:
     name: Lint & Unit Tests
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout kode
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: '20.x'
+          node-version: "20.x"
 
-      - name: Cache dependensi
-        uses: actions/cache@v4
+      - uses: actions/cache@v4
         with:
           path: ~/.npm
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
 
-      - name: Install dependensi
-        run: npm ci
+      - run: npm ci
 
-      - name: Jalankan Lint
-        run: npm run lint
+      - run: npm run lint
 
-      - name: Jalankan Unit Tests
-        run: npm test
+      - run: npm test
 
 
   build_and_integration_test:
@@ -52,22 +46,18 @@ jobs:
     needs: lint_and_unit_test
 
     steps:
-      - name: Checkout kode
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: '20.x'
+          node-version: "20.x"
 
-      - name: Cache dependensi
-        uses: actions/cache@v4
+      - uses: actions/cache@v4
         with:
           path: ~/.npm
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
 
-      - name: Install dependensi
-        run: npm ci
+      - run: npm ci
 
       - name: Build Next.js App
         run: npm run build
@@ -79,14 +69,14 @@ jobs:
         uses: cypress-io/github-action@v6
         with:
           start: npm start
-          wait-on: 'http://localhost:3000'
+          wait-on: "http://localhost:3000"
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
           CYPRESS_userEmail: ${{ secrets.CYPRESS_USER_EMAIL }}
           CYPRESS_userPassword: ${{ secrets.CYPRESS_USER_PASSWORD }}
 
-      - name: Upload Artefak Build
+      - name: Upload Build Artifact
         uses: actions/upload-artifact@v4
         with:
           name: nextjs-build-output
@@ -105,11 +95,9 @@ jobs:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     steps:
-      - name: Checkout kode
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Download Artefak Build
-        uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v4
         with:
           name: nextjs-build-output
 
@@ -127,46 +115,28 @@ jobs:
           file: Dockerfile
           push: true
           tags: |
-            ghcr.io/daniswarabuana/${{ env.IMAGE_NAME }}:${{ github.sha }}
-            ghcr.io/daniswarabuana/${{ env.IMAGE_NAME }}:latest
+            ghcr.io/${{ env.REGISTRY_OWNER }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+            ghcr.io/${{ env.REGISTRY_OWNER }}/${{ env.IMAGE_NAME }}:latest
 
 
-  deploy_staging:
-    name: Deploy & Smoke Test Staging
+  deploy_to_vercel:
+    name: Deploy to Vercel (Production)
     runs-on: ubuntu-latest
     needs: build_and_push_to_ghcr
-    environment:
-      name: staging
-      url: ${{ env.STAGING_APP_URL }}
 
     steps:
-      - name: Deploy ke Azure Staging
-        uses: azure/webapps-deploy@v3
-        with:
-          app-name: ${{ env.AZURE_WEBAPP_NAME_STAGING }}
-          publish-profile: ${{ secrets.AZURE_PUBLISH_PROFILE_STAGING }}
-          images: ghcr.io/daniswarabuana/${{ env.IMAGE_NAME }}:${{ github.sha }}
-          slot-name: staging
+      - uses: actions/checkout@v4
 
-      - name: Smoke Test Staging
+      - name: Install Vercel CLI
+        run: npm install -g vercel
+
+      - name: Deploy ke Vercel
         run: |
-          echo "Menunggu 60 detik untuk aplikasi Staging siap..."
-          sleep 60
-          curl -f ${{ env.STAGING_APP_URL }}
+          vercel pull --yes --environment=production \
+            --token=${{ secrets.VERCEL_TOKEN }}
 
+          vercel build --prod \
+            --token=${{ secrets.VERCEL_TOKEN }}
 
-  deploy_production:
-    name: Deploy to Production
-    runs-on: ubuntu-latest
-    needs: deploy_staging
-    environment:
-      name: production
-      url: ${{ env.PRODUCTION_APP_URL }}
-
-    steps:
-      - name: Deploy ke Azure Production
-        uses: azure/webapps-deploy@v3
-        with:
-          app-name: ${{ env.AZURE_WEBAPP_NAME_PRODUCTION }}
-          publish-profile: ${{ secrets.AZURE_PUBLISH_PROFILE_PRODUCTION }}
-          images: ghcr.io/daniswarabuana/${{ env.IMAGE_NAME }}:${{ github.sha }}
+          vercel deploy --prebuilt --prod \
+            --token=${{ secrets.VERCEL_TOKEN }}
