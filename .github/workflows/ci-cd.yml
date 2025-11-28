@@ -1,4 +1,3 @@
-
 name: CI/CD Website 
 
 on:
@@ -21,30 +20,37 @@ jobs:
     steps:
       - name: Checkout kode
         uses: actions/checkout@v4
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20.x'
+
       - name: Cache dependensi
         uses: actions/cache@v4
         with:
           path: ~/.npm
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+
       - name: Install dependensi
         run: npm ci
+
       - name: Jalankan Lint
         run: npm run lint
+
       - name: Jalankan Unit Tests
         run: npm test
 
+
   build_and_integration_test:
-    name: Build Next.js App & Cypress Integration Tests
+    name: Build Next.js App & Cypress Tests
     runs-on: ubuntu-latest
     needs: lint_and_unit_test
 
     steps:
       - name: Checkout kode
         uses: actions/checkout@v4
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -86,9 +92,10 @@ jobs:
             package.json
             package-lock.json
             next.config.mjs
-#benerin docker
-  build_and_push_to_dockerhub:
-    name: Build & Push Docker Image from Artifact
+
+
+  build_and_push_to_ghcr:
+    name: Build & Push Docker Image (GHCR)
     runs-on: ubuntu-latest
     needs: build_and_integration_test
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
@@ -102,37 +109,39 @@ jobs:
         with:
           name: nextjs-build-output
 
-      - name: Login ke Docker Hub
+      - name: Login ke GHCR
         uses: docker/login-action@v3
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build dan Push Docker Image menggunakan Artefak
+      - name: Build & Push ke GHCR
         uses: docker/build-push-action@v5
         with:
           context: .
           file: Dockerfile
           push: true
           tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
-            ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:latest
+            ghcr.io/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+            ghcr.io/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:latest
+
 
   deploy_staging:
     name: Deploy & Smoke Test Staging
     runs-on: ubuntu-latest
-    needs: build_and_push_to_dockerhub
+    needs: build_and_push_to_ghcr
     environment:
       name: staging
       url: ${{ env.STAGING_APP_URL }}
 
     steps:
-      - name: Deploy ke Azure Web App Staging
+      - name: Deploy ke Azure Staging
         uses: azure/webapps-deploy@v3
         with:
           app-name: ${{ env.AZURE_WEBAPP_NAME_STAGING }}
           publish-profile: ${{ secrets.AZURE_PUBLISH_PROFILE_STAGING }}
-          images: '${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ github.sha }}'
+          images: ghcr.io/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
           slot-name: staging
 
       - name: Smoke Test Staging
@@ -140,6 +149,7 @@ jobs:
           echo "Menunggu 60 detik untuk aplikasi Staging siap..."
           sleep 60
           curl -f ${{ env.STAGING_APP_URL }}
+
 
   deploy_production:
     name: Deploy to Production
@@ -150,9 +160,9 @@ jobs:
       url: ${{ env.PRODUCTION_APP_URL }}
 
     steps:
-      - name: Deploy ke Azure Web App Production menggunakan Publish Profile
+      - name: Deploy ke Azure Production
         uses: azure/webapps-deploy@v3
         with:
           app-name: ${{ env.AZURE_WEBAPP_NAME_PRODUCTION }}
           publish-profile: ${{ secrets.AZURE_PUBLISH_PROFILE_PRODUCTION }}
-          images: '${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ github.sha }}'
+          images: ghcr.io/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
