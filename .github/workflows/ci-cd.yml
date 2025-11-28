@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: ['main']
 
+permissions:
+  contents: read
+  packages: write
+
 env:
   AZURE_WEBAPP_NAME_STAGING: ${{ secrets.AZURE_WEBAPP_NAME_STAGING }}
   AZURE_WEBAPP_NAME_PRODUCTION: ${{ secrets.AZURE_WEBAPP_NAME_PRODUCTION }}
