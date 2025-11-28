@@ -115,7 +115,7 @@ const Navbar = () => {
             }}
           >
             <Link href="/" onClick={() => setSelectedGenres([])}>
-              Filminisme
+              Moviesta
             </Link>
           </Typography>
           <Box className="flex flex-row justify-between gap-3">
