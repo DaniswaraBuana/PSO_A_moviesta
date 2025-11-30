@@ -36,7 +36,12 @@ export async function signup(email: string, password: string) {
     password: password,
   };
 
-  const { error } = await supabase.auth.signUp(data);
+  const { error } = await supabase.auth.signUp({
+    ...data,
+    options: {
+      emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/confirm`,
+    },
+  });
 
   if (error) {
     return error.message;
