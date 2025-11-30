@@ -1,4 +1,4 @@
-name: CI/CD Website 
+name: CI/CD Moviesta PSO A 11
 
 on:
   push:
