@@ -137,7 +137,7 @@ const Navbar = () => {
             )}
             <FilterPopper />
             <Link href="/celebrity">
-              <IconButton title="Celebrity">
+              <IconButton title="Celebrity" data-cy="celebrity-nav-button">
                 <Stars className="text-white" />
               </IconButton>
             </Link>
