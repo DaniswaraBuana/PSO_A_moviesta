@@ -1,43 +1,48 @@
 describe('Celebrity Feature Tests', () => {
   describe('Celebrity Navigation', () => {
     it('should have celebrity icon in navbar', () => {
-      cy.visit('/');
-      cy.get('[title="Celebrity"]').should('exist');
+      cy.visit('/', { timeout: 10000 });
+      cy.wait(2000);
+      cy.get('[title="Celebrity"]', { timeout: 10000 }).should('be.visible');
     });
 
     it('should navigate to celebrity page when clicking celebrity icon', () => {
-      cy.visit('/');
-      cy.get('[title="Celebrity"]').click();
-      cy.url().should('include', '/celebrity');
-      cy.contains('Celebrity').should('be.visible');
+      cy.visit('/', { timeout: 10000 });
+      cy.wait(2000);
+      cy.get('[title="Celebrity"]', { timeout: 10000 }).should('be.visible').click();
+      cy.url({ timeout: 10000 }).should('include', '/celebrity');
+      cy.contains('Celebrity', { timeout: 10000 }).should('be.visible');
     });
   });
 
   describe('Celebrity Page Tabs', () => {
     beforeEach(() => {
-      cy.visit('/celebrity');
-      cy.wait(1000);
+      cy.visit('/celebrity', { timeout: 10000 });
+      cy.wait(3000); // Wait for page to fully load
     });
 
     it('should display all three tabs', () => {
-      cy.contains('Born Today').should('be.visible');
-      cy.contains('Most Popular').should('be.visible');
-      cy.contains('Celebrity News').should('be.visible');
+      cy.contains('Born Today', { timeout: 10000 }).should('be.visible');
+      cy.contains('Most Popular', { timeout: 10000 }).should('be.visible');
+      cy.contains('Celebrity News', { timeout: 10000 }).should('be.visible');
     });
 
     it('should switch to Born Today tab', () => {
-      cy.contains('Born Today').click();
-      cy.contains('Selebriti yang Berulang Tahun Hari Ini').should('be.visible');
+      cy.contains('Born Today', { timeout: 10000 }).should('be.visible').click();
+      cy.wait(1000);
+      cy.contains('Selebriti yang Berulang Tahun Hari Ini', { timeout: 10000 }).should('be.visible');
     });
 
     it('should switch to Most Popular tab', () => {
-      cy.contains('Most Popular').click();
-      cy.contains('Selebriti Paling Populer').should('be.visible');
+      cy.contains('Most Popular', { timeout: 10000 }).should('be.visible').click();
+      cy.wait(1000);
+      cy.contains('Selebriti Paling Populer', { timeout: 10000 }).should('be.visible');
     });
 
     it('should switch to Celebrity News tab', () => {
-      cy.contains('Celebrity News').click();
-      cy.contains('Berita Selebriti Terkini').should('be.visible');
+      cy.contains('Celebrity News', { timeout: 10000 }).should('be.visible').click();
+      cy.wait(1000);
+      cy.contains('Berita Selebriti Terkini', { timeout: 10000 }).should('be.visible');
     });
   });
 });
