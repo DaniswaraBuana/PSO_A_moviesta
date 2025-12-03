@@ -2,7 +2,7 @@
 
 import { Box, Typography, IconButton } from '@mui/material';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
-import { Logout } from '@mui/icons-material';
+import { Logout, Stars } from '@mui/icons-material';
 
 import { useRef } from 'react';
 import ToggleTheme from '../../theme/ToggleTheme';
@@ -136,6 +136,11 @@ const Navbar = () => {
               </Search>
             )}
             <FilterPopper />
+            <Link href="/celebrity">
+              <IconButton title="Celebrity">
+                <Stars className="text-white" />
+              </IconButton>
+            </Link>
             <Link href="/watchlist">
               <IconButton>
                 <FavoriteBorderIcon className="text-white" />

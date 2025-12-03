@@ -6,7 +6,7 @@ const Footer = () => {
   return (
     <Box className="text-center h-full py-5">
       <Typography sx={{ color: 'text.primary' }}>
-        Movie List by PSO B - Kelompok 17 &copy; {year}
+        &copy; {year}
       </Typography>
     </Box>
   );
