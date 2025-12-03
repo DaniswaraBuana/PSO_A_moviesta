@@ -99,8 +99,7 @@ const Navbar = () => {
       router.push(`/search/${searchRef.current?.value}`);
     }
   };
-  // Jangan render search bar jika di environment test (misal: Cypress)
-  const isTest = typeof window !== 'undefined' && window.Cypress;
+
   return (
     <Box sx={{ flexGrow: 1 }}>
       <AppBar position="static" sx={{ py: 1, bgcolor: 'background.paper' }}>
@@ -119,22 +118,20 @@ const Navbar = () => {
             </Link>
           </Typography>
           <Box className="flex flex-row justify-between gap-3">
-            {!isTest && (
-              <Search>
-                <SearchIconWrapper>
-                  <SearchIcon />
-                </SearchIconWrapper>
-                <StyledInputBase
-                  placeholder="Cari Film..."
-                  inputProps={{
-                    'aria-label': 'search',
-                    'data-cy': 'search-input',
-                  }}
-                  inputRef={searchRef}
-                  onKeyDown={handleSearch}
-                />
-              </Search>
-            )}
+            <Search>
+              <SearchIconWrapper>
+                <SearchIcon />
+              </SearchIconWrapper>
+              <StyledInputBase
+                placeholder="Cari Film..."
+                inputProps={{
+                  'aria-label': 'search',
+                  'data-cy': 'search-input',
+                }}
+                inputRef={searchRef}
+                onKeyDown={handleSearch}
+              />
+            </Search>
             <FilterPopper />
             <Link href="/celebrity">
               <IconButton title="Celebrity" data-cy="celebrity-nav-button">
